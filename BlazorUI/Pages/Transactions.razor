@@ -14,6 +14,7 @@
 }
 else
 {
+    <p>@_user.FullName's Transactions</p>
     <table class="table">
         <thead>
         <tr>
@@ -37,10 +38,11 @@ else
 
 @code {
     private List<Transaction> _transactions;
+    private User _user;
 
     protected override async Task OnInitializedAsync()
     {
-        var user = (User) await FinancialService.GetUserByEmail("mattpark102@gmail.com");
-        _transactions = await FinancialService.GetTransactionsByUserId(user.Id);
+        _user = (User) await FinancialService.GetUserByEmail("mattpark102@gmail.com");
+        _transactions = await FinancialService.GetTransactionsByUserId(_user.Id);
     }
 }
