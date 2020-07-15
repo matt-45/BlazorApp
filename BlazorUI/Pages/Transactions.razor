@@ -1,0 +1,46 @@
+@page "/transactions"
+
+@using DataAccessLibrary.Services
+@using DataAccessLibrary.Models
+@inject FinancialService FinancialService
+
+<h1>Financial Portal Transactions</h1>
+
+<p>Grabbing Transactions from: <a target="_blank" href="https://financialwebapi.azurewebsites.net/">https://financialwebapi.azurewebsites.net/</a></p>
+
+@if (_transactions == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Created</th>
+            <th>Amount</th>
+            <th>Creator Id</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var transaction in _transactions)
+        {
+            <tr>
+                <td>@transaction.Created</td>
+                <td>@transaction.Amount</td>
+                <td>@transaction.CreatorId</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Transaction> _transactions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (User) await FinancialService.GetUserByEmail("mattpark102@gmail.com");
+        _transactions = await FinancialService.GetTransactionsByUserId(user.Id);
+    }
+}
