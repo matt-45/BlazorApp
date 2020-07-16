@@ -1,0 +1,110 @@
+@page "/transaction/create"
+@using DataAccessLibrary.Models
+@using DataAccessLibrary.Services
+@using DataAccessLibrary.DataModels
+@inject FinancialService FinancialService
+
+<h1>Create Transactions</h1>
+
+<p>Transaction will be posted to: <a target="_blank" href="https://financialwebapi.azurewebsites.net/">https://financialwebapi.azurewebsites.net/</a></p>
+
+@if (!_formLoaded)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="col-4">
+        <h5 class="header-small">Type</h5>
+        @foreach (var type in (TransactionType[]) Enum.GetValues(typeof(TransactionType)))
+        {
+            <button class="@(_builder.SelectedType == type ? "btn btn-success" : "btn btn-light")" 
+                    style="margin: .2em"
+                    @onclick="() => SelectType(type)">@type</button>
+        }
+
+        <h5 class="header-small">Amount</h5>
+        <input class="form-control"/>
+
+        <h5 class="header-small">Memo</h5>
+        <input class="form-control"/>
+
+        <h5 class="header-small">Bank</h5>
+        @foreach (var account in _bankAccounts)
+        {
+            <button class="btn btn-light" 
+                    style="margin: .2em">@account.Name</button>
+        }
+
+        <h5 class="header-small">Budget</h5>
+        @foreach (var budget in _budgets)
+        {
+           <button class="@(_builder.SelectedBudget == budget ? "btn btn-success" : "btn btn-light")" 
+                   style="margin: .2em"
+                   @onclick="(() => SelectBudget(budget))">@budget.Name</button>
+        }
+        
+        @if (_loadingBudgetItems)
+        {
+            <h5 class="header-small"><em>Loading...</em></h5>
+        }
+        else if(_budgetItems != null)
+        {
+            <h5 class="header-small">Budget Items</h5>
+        }
+        
+        @if (_budgetItems != null)
+        {
+            foreach (var item in _budgetItems)
+            {
+                <button class="@(_builder.SelectedBudgetItem == item ? "btn btn-success" : "btn btn-light")" 
+                        style="margin: .2em"
+                        @onclick="(() => SelectBudgetItem(item))">@item.Name</button>
+            }
+        }
+        
+    </div>
+
+}
+
+@code {
+    private bool _formLoaded;
+    private bool _loadingBudgetItems;
+
+    private User _user;
+    private Group _group;
+    private List<BankAccount> _bankAccounts;
+    private List<Budget> _budgets;
+    private List<BudgetItem> _budgetItems;
+
+    private TransactionBuilder _builder;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _user = (User) await FinancialService.GetUserByEmail("mattpark102@gmail.com");
+        _group = (Group) await FinancialService.GetGroupById(_user.GroupId);
+        _bankAccounts = (List<BankAccount>) await FinancialService.GetBankAccountsByUserId(_user.Id);
+        _budgets = (List<Budget>) await FinancialService.GetBudgetsByGroupId(_group.Id);
+        _formLoaded = true;
+    }
+
+    private void SelectType(TransactionType type)
+    {
+        _builder.SelectedType = type;
+    }
+
+    private async Task SelectBudget(Budget budget)
+    {
+        _loadingBudgetItems = true;
+        _builder.SelectedBudgetItem = null;
+        _builder.SelectedBudget = budget;
+        _budgetItems = (List<BudgetItem>) await FinancialService.GetBudgetItemsByBudgetId(budget.Id);
+        _loadingBudgetItems = false;
+    }
+
+    private void SelectBudgetItem(BudgetItem item)
+    {
+        _builder.SelectedBudgetItem = item;
+    }
+
+}
