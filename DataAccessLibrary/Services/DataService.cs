@@ -27,7 +27,7 @@ namespace DataAccessLibrary.Services
             }
             return data;
         }
-        public static async void PostDataServiceAsync(string queryString)
+        public static async Task<HttpResponseMessage> PostDataServiceAsync(string queryString)
         {
             var client = new HttpClient();
             client.BaseAddress = new Uri(queryString);
@@ -35,12 +35,14 @@ namespace DataAccessLibrary.Services
             try
             {
                 HttpResponseMessage response = await client.PostAsync(queryString, null);
-                var result = await response.Content.ReadAsStringAsync();
+                return response;
             }
             catch (Exception er)
             {
                 Console.WriteLine(er);
             }
+
+            return null;
         }
         public static async void PutDataServiceAsync(string queryString)
         {

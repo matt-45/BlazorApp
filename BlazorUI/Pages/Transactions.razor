@@ -20,7 +20,8 @@ else
         <tr>
             <th>Created</th>
             <th>Amount</th>
-            <th>Creator Id</th>
+            <th>Memo</th>
+            <th>Type</th>
         </tr>
         </thead>
         <tbody>
@@ -29,7 +30,8 @@ else
             <tr>
                 <td>@transaction.Created</td>
                 <td>@transaction.Amount</td>
-                <td>@transaction.CreatorId</td>
+                <td>@transaction.Memo</td>
+                <td>@transaction.Type</td>
             </tr>
         }
         </tbody>
@@ -44,5 +46,6 @@ else
     {
         _user = (User) await FinancialService.GetUserByEmail("mattpark102@gmail.com");
         _transactions = await FinancialService.GetTransactionsByUserId(_user.Id);
+        _transactions = _transactions.OrderByDescending(t => t.Created).ToList();
     }
 }
