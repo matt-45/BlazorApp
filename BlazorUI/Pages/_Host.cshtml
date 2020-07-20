@@ -10,10 +10,11 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BlazorUI</title>
+    <title>Playground</title>
     <base href="~/" />
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="css/custom.css"/>
+    <link rel="icon" type="image/png" href="favicon.png"/>
     <link href="css/site.css" rel="stylesheet" />
 </head>
 <body>
@@ -42,13 +43,11 @@
            navigator.geolocation.getCurrentPosition((position) => {
                lat = position.coords.latitude;
                lon = position.coords.longitude;
-               console.log(lat)
-               console.log(lon)
            }, () => {
                console.log("Could not get location!")
            });
        } else {
-           return "Could not get location!"
+           console.log("Could not get location!")
        }
     })();
     
