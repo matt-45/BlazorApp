@@ -1,0 +1,66 @@
+@page "/weather"
+
+@using DataAccessLibrary.Models.Weather
+@using DataAccessLibrary.Services
+@using Newtonsoft.Json
+@inject WeatherService WeatherService
+@inject IJSRuntime JsRuntime
+
+<h1>Weather</h1>
+
+<p>Weather from Open Weather API: <a target="_blank" href="https://openweathermap.org/current">https://openweathermap.org/current</a></p>
+
+@if (_weather != null)
+{
+    <img src="@_weather.Weather[0].IconPath" alt=""/>
+    <p style="font-weight: bold">@_weather.City</p>
+    <p>@_weather.Weather[0].Description</p>
+    <p>Temperature: @_weather.Main.Temperature F</p>
+    <p>Wind Speed: @_weather.Wind.Speed MPH</p>
+                                        
+    <button class="btn btn-success" @onclick="ToggleData">View Json</button>
+    if (_viewData)
+    {
+        <div class="col-3" style="padding-top: 2em">
+            <p>@_weatherData</p>
+        </div>
+    }
+}
+else
+{
+    <p><em>@_status</em></p>
+}
+
+@code {
+    private CoreWeather _weather;
+    private string _weatherData;
+    private string _status = "loading...";
+    private double _lat;
+    private double _lon;
+
+    private bool _viewData;
+    
+    private List<double> _latLongs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _latLongs = await JsRuntime.InvokeAsync<List<double>>("getLatLong");
+
+        if (_latLongs == null)
+        {
+            _status = "Uh oh :( I couldn't find your location. Try refreshing.";
+        }
+        else
+        {
+            _lat = _latLongs[0];
+            _lon = _latLongs[1];
+            _weather = await WeatherService.GetWeather(_lat, _lon);
+            _weatherData = JsonConvert.SerializeObject(_weather);
+        }
+    }
+
+    private void ToggleData()
+    {
+        _viewData = !_viewData;
+    }
+}
