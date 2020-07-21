@@ -44,7 +44,14 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        _latLongs = await JsRuntime.InvokeAsync<List<double>>("getLatLong");
+        try
+        {
+            _latLongs = await JsRuntime.InvokeAsync<List<double>>("getLatLong");
+        }
+        catch (Exception e)
+        {
+            _status = "Uh oh :( I couldn't find your location. Try refreshing.";
+        }
 
         if (_latLongs == null)
         {
